@@ -215,3 +215,40 @@ class InstallmentCalculationServiceImplTest {
     }
 }
 ```
+
+### Czwarty commit dotyczy testu inegracyjnego, wiec podnosimy caly kontekst springowy
+```java
+@SpringJUnitConfig(classes = {CalculatorConfiguration.class})
+public class InstallmentCalculationServiceIT {
+
+    @Autowired
+    private InstallmentCalculationService installmentCalculationService;
+
+    @BeforeEach
+    void setup() {
+        Assertions.assertNotNull(installmentCalculationService);
+    }
+
+    @Test
+    @DisplayName("Test installment calculation")
+    void test() {
+        //given
+        InputData inputData = TestDataFixtures.someInputData();
+
+        //when
+        // to zostanie policzone tak jakbysmy normalnie uruchomili program, poniewaz podnieisony jest caly spring context,
+        // a to znaczy, ze wszytskie beany springowe zostaly dobrze utworzone
+        List<Installment> result = installmentCalculationService.calculate(inputData);
+
+        //then
+        //porównujmey ilosc rat
+        Assertions.assertEquals(180,result.size());
+        //porownujmey rate numer 5,10,40,80
+        Assertions.assertEquals(TestDataFixtures.someInstallment5(),result.get(4));
+        Assertions.assertEquals(TestDataFixtures.someInstallment10(),result.get(9));
+        Assertions.assertEquals(TestDataFixtures.someInstallment40(),result.get(39));
+        Assertions.assertEquals(TestDataFixtures.someInstallment80(),result.get(79));
+
+    }
+}
+```
